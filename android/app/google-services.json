@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "537580464882",
+    "firebase_url": "https://capturoca-app-f1561.firebaseio.com",
+    "project_id": "capturoca-app-f1561",
+    "storage_bucket": "capturoca-app-f1561.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:537580464882:android:f59307544f90953ec5fe6b",
+        "android_client_info": {
+          "package_name": "com.AR.Capturoca"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "537580464882-inm92nrukt10l7t8jiogrua91eo30j5o.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.AR.Capturoca",
+            "certificate_hash": "e0193d35b31114f80b8b8a4c0ebaa4cabe20f7b9"
+          }
+        },
+        {
+          "client_id": "537580464882-9jghi5lpu9hlasbgbatev3pb9g1r26m1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDvFmSZVelJbKkBMRqOvZYIpe9znMINam4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "537580464882-9jghi5lpu9hlasbgbatev3pb9g1r26m1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
