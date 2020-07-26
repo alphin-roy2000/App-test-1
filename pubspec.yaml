@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_sign_in: ^4.4.6
-  cloud_firestore: ^0.13.5
+  cloud_firestore:
   cached_network_image:
   image_picker: ^0.6.6+1
   splashscreen: ^1.2.0
@@ -34,6 +34,7 @@ dependencies:
   firebase_storage: ^3.1.5
   firebase_auth: ^0.16.0
   timeago: ^2.0.26
+  firebase_messaging: ^6.0.16
   
 
   

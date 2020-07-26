@@ -17,7 +17,7 @@ final StorageReference storageReference =
 
 class UploadPage extends StatefulWidget {
   final User gCurrentUser;
-  UploadPage(this.gCurrentUser);
+  UploadPage({this.gCurrentUser});
 
   @override
   _UploadPageState createState() => _UploadPageState();

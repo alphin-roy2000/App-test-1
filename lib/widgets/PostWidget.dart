@@ -137,14 +137,82 @@ class _PostState extends State<Post> {
                     Icons.more_vert,
                     color: Colors.black,
                   ),
-                  onPressed: () {
-                    print("deleted");
-                  },
+                  onPressed: () => controlPostDelete(context),
                 )
               : Text(""),
         );
       },
     );
+  }
+
+  controlPostDelete(BuildContext mContext) {
+    return showDialog(
+        context: mContext,
+        builder: (context) {
+          return SimpleDialog(
+            title: Text(
+              "What do you want?",
+              style: TextStyle(color: Colors.blue),
+            ),
+            children: <Widget>[
+              SimpleDialogOption(
+                child: Text(
+                  "Delete this post",
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                  removeUserPost();
+                },
+              ),
+              SimpleDialogOption(
+                child: Text(
+                  "Cancel",
+                  style:
+                      TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        });
+  }
+
+  removeUserPost() async {
+    postsReference
+        .document(ownerId)
+        .collection("usersPosts")
+        .document(postId)
+        .get()
+        .then((document) {
+      if (document.exists) {
+        document.reference.delete();
+      }
+    });
+    storageReference.child("post_$postId.jpg").delete();
+    QuerySnapshot querySnapshot = await activityFeedReference
+        .document(ownerId)
+        .collection("feedItems")
+        .where("postId", isEqualTo: postId)
+        .getDocuments();
+
+    querySnapshot.documents.forEach((document) {
+      if (document.exists) {
+        document.reference.delete();
+      }
+    });
+    QuerySnapshot commentsQuerySnapshot = await commentsReference
+        .document(postId)
+        .collection("Comments")
+        .getDocuments();
+    commentsQuerySnapshot.documents.forEach((document) {
+      if (document.exists) {
+        document.reference.delete();
+      }
+    });
   }
 
   displayUserProfile(BuildContext context, {String userProfileId}) {

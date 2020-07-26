@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:Capturoca/models/user.dart';
 import 'package:Capturoca/pages/CreateAccountPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -6,6 +8,7 @@ import 'package:Capturoca/pages/ProfilePage.dart';
 import 'package:Capturoca/pages/SearchPage.dart';
 import 'package:Capturoca/pages/TimeLinePage.dart';
 import 'package:Capturoca/pages/UploadPage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +23,7 @@ final activityFeedReference = Firestore.instance.collection("feed");
 final commentsReference = Firestore.instance.collection("comments");
 final followersReference = Firestore.instance.collection("followers");
 final followingReference = Firestore.instance.collection("following");
+final timelinereference = Firestore.instance.collection("timeline");
 
 final DateTime timestamp = DateTime.now();
 User currentUser;
@@ -84,6 +88,8 @@ class _HomePageState extends State<HomePage> {
   bool isSignedIn = false;
   PageController pageController;
   int getPageIndex = 0;
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   //  GoogleSignIn _googleSignIn = GoogleSignIn();
 
@@ -127,11 +133,48 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         isSignedIn = true;
       });
+      configureRealTimePushNotification();
     } else {
       setState(() {
         isSignedIn = false;
       });
     }
+  }
+
+  configureRealTimePushNotification() {
+    final GoogleSignInAccount gUser = gSignIn.currentUser;
+    if (Platform.isIOS) {
+      getIOSPermission();
+    }
+    _firebaseMessaging.getToken().then((token) {
+      usersReference
+          .document(gUser.id)
+          .updateData({"androidNotificationsToken": token});
+    });
+    _firebaseMessaging.configure(onMessage: (Map<String, dynamic> msg) async {
+      final String recipientId = msg["data"]["recipient"];
+      final String body = msg["notifications"]["body"];
+
+      if (recipientId == gUser.id) {
+        SnackBar snackBar = SnackBar(
+          content: Text(
+            body,
+            style: TextStyle(color: Colors.black),
+            overflow: TextOverflow.ellipsis,
+          ),
+          backgroundColor: Colors.grey,
+        );
+        _scaffoldKey.currentState.showSnackBar(snackBar);
+      }
+    });
+  }
+
+  getIOSPermission() {
+    _firebaseMessaging.requestNotificationPermissions(
+        IosNotificationSettings(alert: true, badge: true, sound: true));
+    _firebaseMessaging.onIosSettingsRegistered.listen((settings) {
+      print("Setting Registered: $settings");
+    });
   }
 
   saveUserInfoToFirestore() async {
@@ -152,6 +195,11 @@ class _HomePageState extends State<HomePage> {
         "bio": "",
         "timestamp": timestamp,
       });
+      await followersReference
+          .document(gCurrentUser.id)
+          .collection("userFollowers")
+          .document(gCurrentUser.id)
+          .setData({});
 
       documentSnapshot = await usersReference.document(gCurrentUser.id).get();
     }
@@ -184,13 +232,14 @@ class _HomePageState extends State<HomePage> {
 
   Scaffold buildHomeScreen() {
     return Scaffold(
+      key: _scaffoldKey,
       body: PageView(
         children: <Widget>[
-          TimeLinePage(),
+          TimeLinePage(gCurrentUser: currentUser),
           // RaisedButton.icon(onPressed: logoutUser, icon: Icon(Icons.close), label: Text("Sign Out")),
           SearchPage(),
           // RaisedButton.icon(onPressed: logoutUser, icon: Icon(Icons.close), label: Text("Sign Out")),
-          UploadPage(currentUser),
+          UploadPage(gCurrentUser: currentUser),
           NotificationsPage(),
           ProfilePage(userProfileId: currentUser.id),
         ],
