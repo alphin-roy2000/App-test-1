@@ -185,26 +185,27 @@ class _HomePageState extends State<HomePage> {
     if (!documentSnapshot.exists) {
       final username = await Navigator.push(context,
           MaterialPageRoute(builder: (context) => CreateAccountPage()));
+      if (username != null) {
+        usersReference.document(gCurrentUser.id).setData({
+          "id": gCurrentUser.id,
+          "profileName": gCurrentUser.displayName,
+          "username": username,
+          "url": gCurrentUser.photoUrl,
+          "email": gCurrentUser.email,
+          "bio": "",
+          "timestamp": DateTime.now(),
+        });
+        await followersReference
+            .document(gCurrentUser.id)
+            .collection("userFollowers")
+            .document(gCurrentUser.id)
+            .setData({});
 
-      usersReference.document(gCurrentUser.id).setData({
-        "id": gCurrentUser.id,
-        "profileName": gCurrentUser.displayName,
-        "username": username,
-        "url": gCurrentUser.photoUrl,
-        "email": gCurrentUser.email,
-        "bio": "",
-        "timestamp": timestamp,
-      });
-      await followersReference
-          .document(gCurrentUser.id)
-          .collection("userFollowers")
-          .document(gCurrentUser.id)
-          .setData({});
+        documentSnapshot = await usersReference.document(gCurrentUser.id).get();
+      }
 
-      documentSnapshot = await usersReference.document(gCurrentUser.id).get();
+      currentUser = User.fromDocument(documentSnapshot);
     }
-
-    currentUser = User.fromDocument(documentSnapshot);
   }
 
   void dispose() {
